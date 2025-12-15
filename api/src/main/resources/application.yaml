@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: psicare-api
+
+  # Configuração do Banco de Dados (Aponta para o Docker)
+  datasource:
+    url: jdbc:postgresql://localhost:5433/psicare
+    username: psicare_user
+    password: psicare_pass
+    driver-class-name: org.postgresql.Driver
+
+  # JPA & Hibernate
+  jpa:
+    open-in-view: false # Boa prática: evita consultas fantasma na View
+    show-sql: true # Útil em dev, desligar em prod
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: validate # CRÍTICO: Não deixe o Hibernate criar tabelas. O Flyway fará isso.
+
+  # Flyway (Versionamento de Banco)
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+# Configuração de Log (Limpo e informativo)
+logging:
+  level:
+    root: INFO
+    br.com.psicare: DEBUG # Logar detalhes do nosso código
