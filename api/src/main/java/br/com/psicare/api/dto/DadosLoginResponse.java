@@ -7,6 +7,5 @@ public record DadosLoginResponse(
         UUID id,
         String nome,
         String email,
-        String iniciais,
-        String telefone // Adicionado campo telefone
+        String iniciais
 ) {}

@@ -1,9 +1,8 @@
 package br.com.psicare.api.enums;
 
 public enum StatusSessao {
-    AGENDADO,
-    CONCLUIDO,
-    CANCELADO,
-    REMARCADO,
-    FALTOU
+    COMPARECEU,
+    FALTOU,
+    REMARCADA,  // Frontend envia exatamente este texto
+    CANCELADA   // Frontend envia exatamente este texto
 }

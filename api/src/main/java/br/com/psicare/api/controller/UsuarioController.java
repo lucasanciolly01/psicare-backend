@@ -1,13 +1,12 @@
 package br.com.psicare.api.controller;
 
-import br.com.psicare.api.dto.DadosAtualizacaoUsuario; // Import necessário
 import br.com.psicare.api.dto.DadosCadastroUsuario;
-import br.com.psicare.api.model.Usuario; // Import necessário para @AuthenticationPrincipal
-import br.com.psicare.api.services.UsuarioService;
+import br.com.psicare.api.model.Usuario;
+import br.com.psicare.api.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -17,20 +16,24 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class UsuarioController {
 
     @Autowired
-    private UsuarioService service;
+    private UsuarioRepository repository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping
     @Transactional
     public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroUsuario dados, UriComponentsBuilder uriBuilder) {
-        var dto = service.cadastrar(dados);
-        var uri = uriBuilder.path("/usuarios/{id}").buildAndExpand(dto.id()).toUri();
-        return ResponseEntity.created(uri).body(dto);
-    }
+        // Encripta a senha antes de salvar
+        var senhaHash = passwordEncoder.encode(dados.senha());
 
-    @PutMapping
-    @Transactional
-    public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoUsuario dados, @AuthenticationPrincipal Usuario usuarioLogado) {
-        var dto = service.atualizar(dados, usuarioLogado);
-        return ResponseEntity.ok(dto);
+        // Gera iniciais simples (Pega as 2 primeiras letras)
+        var iniciais = dados.nome().substring(0, Math.min(2, dados.nome().length())).toUpperCase();
+
+        var usuario = new Usuario(dados.nome(), dados.email(), senhaHash, dados.telefone(), iniciais);
+        repository.save(usuario);
+
+        var uri = uriBuilder.path("/usuarios/{id}").buildAndExpand(usuario.getId()).toUri();
+        return ResponseEntity.created(uri).body(usuario); // TODO: Retornar DTO de resposta, não a Entidade! (Corrigiremos no refinamento)
     }
 }

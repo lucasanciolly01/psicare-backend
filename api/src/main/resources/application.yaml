@@ -4,7 +4,7 @@ spring:
 
   # Configuração do Banco de Dados (Aponta para o Docker)
   datasource:
-    url: jdbc:postgresql://localhost:5435/psicare
+    url: jdbc:postgresql://localhost:5433/psicare
     username: psicare_user
     password: psicare_pass
     driver-class-name: org.postgresql.Driver

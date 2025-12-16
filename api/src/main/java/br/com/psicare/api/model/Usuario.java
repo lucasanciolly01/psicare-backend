@@ -27,12 +27,12 @@ public class Usuario implements UserDetails {
     private String email;
 
     @Column(name = "senha_hash")
-    private String senha;
+    private String senha; // O Spring Security exige que o getter se chame getPassword()
 
     private String telefone;
 
     @Column(name = "foto_blob")
-    private String fotoBlob; // Campo onde a string Base64 é salva
+    private String fotoBlob;
 
     private String iniciais;
 
@@ -49,32 +49,11 @@ public class Usuario implements UserDetails {
         this.createdAt = LocalDateTime.now();
     }
 
-    // === Método de Atualização (Regra de Negócio) ===
-    // ATUALIZADO: Agora aceita a foto
-    public void atualizarInformacoes(String nome, String telefone, String novaSenhaHash, String novaFoto) {
-        if (nome != null && !nome.isBlank()) {
-            this.nome = nome;
-            // Recalcula iniciais se o nome mudou
-            this.iniciais = nome.substring(0, Math.min(2, nome.length())).toUpperCase();
-        }
-
-        if (telefone != null) {
-            this.telefone = telefone;
-        }
-
-        if (novaSenhaHash != null) {
-            this.senha = novaSenhaHash;
-        }
-
-        if (novaFoto != null) {
-            this.fotoBlob = novaFoto;
-        }
-    }
-
     // === Métodos do Spring Security (UserDetails) ===
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Por enquanto, todo usuário tem permissão genérica de USER
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
@@ -85,7 +64,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return email; // Nosso login é via Email
     }
 
     @Override
