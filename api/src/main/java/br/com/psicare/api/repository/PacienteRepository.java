@@ -10,14 +10,16 @@ import java.util.UUID;
 
 public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
 
-    // Método essencial para o Soft Delete funcionar na listagem
+    // Lista pacientes ativos (excluindo os deletados logicamente), com paginação
     Page<Paciente> findAllByUsuarioAndStatusIsNot(Usuario usuario, StatusPaciente status, Pageable pageable);
 
-    // Métodos auxiliares de busca
+    // Busca um paciente específico garantindo que pertence ao usuário logado
     Paciente findByIdAndUsuario(UUID id, Usuario usuario);
+
+    // Busca todos os pacientes de um usuário
     Page<Paciente> findAllByUsuario(Usuario usuario, Pageable pageable);
 
-    // === NOVOS MÉTODOS PARA O DASHBOARD ===
+    // === MÉTODOS DO DASHBOARD ===
 
     // Conta total de pacientes do psicólogo
     long countByUsuario(Usuario usuario);

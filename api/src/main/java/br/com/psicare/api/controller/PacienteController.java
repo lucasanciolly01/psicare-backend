@@ -1,10 +1,10 @@
 package br.com.psicare.api.controller;
 
-import br.com.psicare.api.dto.*;
-import br.com.psicare.api.enums.StatusPaciente; // Import adicionado
-import br.com.psicare.api.model.Paciente;
+import br.com.psicare.api.dto.DadosAtualizacaoPaciente;
+import br.com.psicare.api.dto.DadosCadastroPaciente;
+import br.com.psicare.api.dto.DadosDetalhamentoPaciente;
 import br.com.psicare.api.model.Usuario;
-import br.com.psicare.api.repository.PacienteRepository;
+import br.com.psicare.api.services.PacienteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,18 +23,18 @@ import java.util.UUID;
 public class PacienteController {
 
     @Autowired
-    private PacienteRepository repository;
+    private PacienteService service;
 
     @PostMapping
     @Transactional
     public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroPaciente dados,
                                     UriComponentsBuilder uriBuilder,
                                     @AuthenticationPrincipal Usuario usuarioLogado) {
-        var paciente = new Paciente(dados, usuarioLogado);
-        repository.save(paciente);
 
-        var uri = uriBuilder.path("/pacientes/{id}").buildAndExpand(paciente.getId()).toUri();
-        return ResponseEntity.created(uri).body(new DadosDetalhamentoPaciente(paciente));
+        var dto = service.cadastrar(dados, usuarioLogado);
+        var uri = uriBuilder.path("/pacientes/{id}").buildAndExpand(dto.id()).toUri();
+
+        return ResponseEntity.created(uri).body(dto);
     }
 
     @GetMapping
@@ -42,35 +42,27 @@ public class PacienteController {
             @PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao,
             @AuthenticationPrincipal Usuario usuarioLogado) {
 
-        // CORREÇÃO: Busca apenas pacientes do usuário logado QUE NÃO ESTEJAM INATIVOS
-        var page = repository.findAllByUsuarioAndStatusIsNot(usuarioLogado, StatusPaciente.INATIVO, paginacao)
-                .map(DadosDetalhamentoPaciente::new);
-
+        var page = service.listar(paginacao, usuarioLogado);
         return ResponseEntity.ok(page);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity detalhar(@PathVariable UUID id) {
-        // TODO: Validar se o paciente pertence ao usuário logado (Segurança extra)
-        var paciente = repository.getReferenceById(id);
-        return ResponseEntity.ok(new DadosDetalhamentoPaciente(paciente));
+        var dto = service.detalhar(id);
+        return ResponseEntity.ok(dto);
     }
 
     @PutMapping
     @Transactional
     public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoPaciente dados) {
-        var paciente = repository.getReferenceById(dados.id());
-        paciente.atualizarInformacoes(dados);
-        return ResponseEntity.ok(new DadosDetalhamentoPaciente(paciente));
+        var dto = service.atualizar(dados);
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity excluir(@PathVariable UUID id) {
-        // CORREÇÃO: Soft Delete - Recupera e inativa em vez de deletar
-        var paciente = repository.getReferenceById(id);
-        paciente.inativar();
-
+        service.excluir(id);
         return ResponseEntity.noContent().build();
     }
 }

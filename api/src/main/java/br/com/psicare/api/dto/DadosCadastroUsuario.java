@@ -15,7 +15,8 @@ public record DadosCadastroUsuario(
         @NotBlank
         String senha,
 
-        @Pattern(regexp = "\\d{10,11}") // Validação simples de telefone (apenas números)
+        // Telefone agora é opcional para alinhar com o Front
+        @Pattern(regexp = "\\d{10,11}")
         String telefone
 ) {
 }

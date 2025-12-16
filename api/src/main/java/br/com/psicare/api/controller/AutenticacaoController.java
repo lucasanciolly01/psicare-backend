@@ -1,6 +1,7 @@
 package br.com.psicare.api.controller;
 
 import br.com.psicare.api.dto.DadosAutenticacao;
+import br.com.psicare.api.dto.DadosLoginResponse; // Agora usa o DTO correto do pacote .dto
 import br.com.psicare.api.model.Usuario;
 import br.com.psicare.api.security.TokenService;
 import jakarta.validation.Valid;
@@ -12,8 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/login")
@@ -45,16 +44,8 @@ public class AutenticacaoController {
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
-                usuario.getIniciais()
+                usuario.getIniciais(),
+                usuario.getTelefone() // Passando o telefone agora
         ));
     }
 }
-
-// DTO de Resposta (Criado aqui para facilitar, mas pode ir para o pacote .dto depois)
-record DadosLoginResponse(
-        String token,
-        UUID id,
-        String nome,
-        String email,
-        String iniciais
-) {}

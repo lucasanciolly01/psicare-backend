@@ -1,25 +1,30 @@
 package br.com.psicare.api.dto;
 
+import br.com.psicare.api.model.Agendamento;
 import br.com.psicare.api.enums.StatusSessao;
 import br.com.psicare.api.enums.TipoSessao;
-import br.com.psicare.api.model.Agendamento;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.math.BigDecimal;
 
-public record DadosDetalhamentoSessao(
+public record DadosDetalhamentoAgendamento(
         UUID id,
+        UUID pacienteId,
         String pacienteNome,
         LocalDateTime dataHora,
-        TipoSessao tipo,
+        TipoSessao tipoSessao,
+        BigDecimal valorCobrado,
         StatusSessao statusSessao
 ) {
-    public DadosDetalhamentoSessao(Agendamento agendamento) {
+    public DadosDetalhamentoAgendamento(Agendamento agendamento) {
         this(
                 agendamento.getId(),
+                agendamento.getPaciente().getId(),
                 agendamento.getPaciente().getNome(),
                 agendamento.getDataHora(),
                 agendamento.getTipoSessao(),
+                agendamento.getValorCobrado(),
                 agendamento.getStatusSessao()
         );
     }
